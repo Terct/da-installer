@@ -8,10 +8,6 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 
 const serverAuth = require("./auth")
-const functionStreamTicks = require("./functions/deriv/ticks-stream")
-
-const execClientLogin = require("./functions/server/client-login")
-const execSessionVerific = require("./functions/server/sessions-verific")
 
 const PORT = 3000;
 
