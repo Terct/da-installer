@@ -15,177 +15,45 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 app.use(bodyParser.json());
 
-// Registro de cliente
-app.post('/signup', async (req, res) => {
-  try {
-    const { name, email, password, confirmPassword } = req.body;
-
-    // Verificar se as senhas coincidem
-    if (password !== confirmPassword) {
-      return res.status(400).json({ error: 'As senhas não são iguais' });
-    }
-
-    // Verificar se o e-mail já está cadastrado
-    const existingUser = await supabase
-      .from('users')
-      .select('id')
-      .eq('email', email);
-
-    if (existingUser.data && existingUser.data.length > 0) {
-      return res.status(400).json({ error: 'Este e-mail já está cadastrado' });
-    }
-
-    // Hash da senha
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Inserir usuário em Supabase
-    const { data, error } = await supabase.from('users').insert([
-      { name, email, password: hashedPassword },
-    ]);
-
-    if (error) {
-      return res.status(500).json({ error: 'Erro ao registrar o usuário' });
-    }
-
-    res.status(201).json({ message: 'Usuário registrado com sucesso' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Erro interno' });
-  }
-});
-
-
 
 // Início de sessão
-app.post('/login', async (req, res) => {
+app.post('/validate', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { key_app, app } = req.body;
 
     // Buscar usuário
     const { data, error } = await supabase
-      .from('users')
+      .from('keys_installer')
       .select()
-      .eq('email', email);
+      .eq('key_app', key_app);
 
     if (error) {
-      return res.status(500).json({ error: 'Erro ao fazer login' });
+      return res.status(500).json({ error: 'Erro ao localizar a chave.' });
     }
 
     // Verificar se o usuário existe
     if (data.length === 0) {
-      return res.status(401).json({ error: 'Credenciais inválidas' });
+      return res.status(401).json({ error: 'A chave é inválida.' });
     }
 
-    // Verificar a senha
-    const match = await bcrypt.compare(password, data[0].password);
-
-    if (!match) {
-      return res.status(401).json({ error: 'Credenciais inválidas' });
+    if (data[0].app !== app) {
+      return res.status(401).json({ error: 'O app não corresponde.' });
     }
 
-    // Gerar token
-    const token = jwt.sign({ userId: data[0].id }, process.env.JWT_SECRET, {
-      expiresIn: '1h',
-    });
-
-    // Verificar se a sessão já existe para este user_id
-    const existingSession = await supabase
-      .from('sessions')
-      .select('user_id, created_at')
-      .eq('user_id', data[0].id);
-
-    if (existingSession.data && existingSession.data.length > 0) {
-      // Atualizar a coluna 'created_at' na tabela 'sessions'
-      const { data: updateResult, error: updateError } = await supabase
-        .from('sessions')
-        .update({ created_at: moment().tz('America/Sao_Paulo').format(), token })
-        .eq('user_id', data[0].id);
-
-      if (updateError) {
-        console.error(updateError);
-        return res.status(500).json({ error: 'Erro ao atualizar a sessão' });
-      }
-    } else {
-      // Inserir dados de sessão na tabela 'sessions'
-      const sessionData = {
-        user_id: data[0].id,
-        token,
-        created_at: moment().tz('America/Sao_Paulo').format(),
-      };
-
-      const { data: insertResult, error: insertError } = await supabase
-        .from('sessions')
-        .insert([sessionData], { onConflict: ['user_id'] }); // Adicione onConflict para lidar com conflitos
-
-      if (insertError) {
-        console.error(insertError);
-        return res.status(500).json({ error: 'Erro ao criar sessão' });
-      }
+    // Verificar se o status da chave é "actived"
+    if (data[0].status !== 'actived') {
+      return res.status(401).json({ error: 'A chave não está ativa.' });
     }
 
-    res.json({ token });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Erro interno' });
+    // Se chegou até aqui, as credenciais e o status são válidos
+    return res.status(200).json({ success: 'A chave é válida.' });
+
+  } catch (e) {
+    console.error('Erro ao processar a solicitação:', e);
+    return res.status(500).json({ error: 'Erro interno do servidor' });
   }
 });
 
-
-// Rota para procurar por um valor na coluna 'token' na tabela 'sessions'
-app.get('/search-sid', async (req, res) => {
-  try {
-    const { searchValue } = req.query;
-
-    // Verificar se o parâmetro de consulta 'searchValue' está presente
-    if (!searchValue) {
-      return res.status(400).json({ error: 'O parâmetro de consulta searchValue é obrigatório' });
-    }
-
-    // Buscar sessões com base no valor fornecido na coluna 'token'
-    const { data, error } = await supabase
-      .from('sessions')
-      .select('user_id, token, created_at')
-      .ilike('token', `%${searchValue}%`); // Utilize ilike para pesquisa de substring sem diferenciar maiúsculas e minúsculas
-
-    if (error) {
-      console.error(error);
-      return res.status(500).json({ error: 'Erro ao buscar sessões' });
-    }
-
-    res.json({ sessions: data });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Erro interno' });
-  }
-});
-
-// Rota para procurar por um valor na coluna 'token' na tabela 'sessions'
-app.get('/search-machine-ticks', async (req, res) => {
-  try {
-    const { searchValue } = req.query;
-
-    // Verificar se o parâmetro de consulta 'searchValue' está presente
-    if (!searchValue) {
-      return res.status(400).json({ error: 'O parâmetro de consulta searchValue é obrigatório' });
-    }
-
-    // Buscar sessões com base no valor fornecido na coluna 'token'
-    const { data, error } = await supabase
-      .from('machine_ticks')
-      .select('id, name, online, linked_users')
-      .ilike('name', `%${searchValue}%`); // Utilize ilike para pesquisa de substring sem diferenciar maiúsculas e minúsculas
-
-    if (error) {
-      console.error(error);
-      return res.status(500).json({ error: 'Erro ao buscar maquinas' });
-    }
-
-    res.json({ machines: data });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Erro interno' });
-  }
-});
 
 
 app.listen(port, () => {

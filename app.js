@@ -7,6 +7,7 @@ const dotenv = require('dotenv'); // Importe a biblioteca dotenv
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
+
 const serverAuth = require("./auth")
 
 const PORT = 3000;
@@ -30,14 +31,35 @@ app.use(cors({
 
 
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'shells', 'index.html'));
-});
-
-
-app.get('/install', (req, res) => {
   res.sendFile(path.join(__dirname, 'shells', 'dagestao-instaler.sh'));
 })
 
+// Rota /install com parâmetros app e key
+app.get('/install', async (req, res) => {
+  try {
+    const { app, key } = req.query;
+
+    // Fazer requisição para a rota /validate com os parâmetros app e key usando axios
+    const validateResponse = await axios.post(`http://localhost:61512/validate`, {
+      key_app: key,
+      app,
+    });
+
+    // Verificar o status da resposta da rota /validate
+    if (validateResponse.status !== 200) {
+      return res.status(validateResponse.status).json(validateResponse.data);
+    }
+
+    // Se chegou até aqui, a validação foi bem-sucedida, enviar o arquivo
+    res.sendFile(path.join(__dirname, 'shells', 'applications', app, 'installer.sh'));
+
+  } catch (error) {
+
+    console.error('Erro ao processar a solicitação:', error);
+    return res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+
+});
 
 
 app.listen(PORT, () => {

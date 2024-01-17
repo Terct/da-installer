@@ -20,6 +20,7 @@
     "fs-extra": "^11.2.0",
     "jsonwebtoken": "^9.0.2",
     "moment-timezone": "^0.5.44",
+    "node-fetch": "^3.3.2",
     "path": "^0.12.7"
   }
 }
