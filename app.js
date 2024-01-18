@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 const path = require('path');
-const fs = require('fs').promises;
+const fs = require('fs')
 const axios = require('axios'); // Importe a biblioteca axios
 const dotenv = require('dotenv'); // Importe a biblioteca dotenv
 const bodyParser = require('body-parser');
@@ -28,9 +28,6 @@ app.use(cors({
   optionsSuccessStatus: 200 // Algumas configurações adicionais, se necessário
 }));
 
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'shells', 'dagestao-instaler.sh'));
-})
 
 app.get('/install', async (req, res) => {
   try {
@@ -78,11 +75,13 @@ app.get('/install', async (req, res) => {
 app.get('/subscription-key', async (req, res) => {
 
   try {
-    const { ip, key } = req.query;
+    const { ip, key, app } = req.query;
+
+    //console.log(ip, key, app)
 
     // Validar a presença de app e key
-    if (!ip || !key) {
-      return res.status(400).json({ error: 'Parâmetros ip e key são obrigatórios.' });
+    if (!ip || !key || !app) {
+      return res.status(400).json({ error: 'Parâmetros ip, key e app são obrigatórios.' });
     }
 
     // Fazer requisição para a rota /validate com os parâmetros app e key usando axios
@@ -93,9 +92,17 @@ app.get('/subscription-key', async (req, res) => {
 
     // Verificar o status da resposta da rota /validate
     if (validateResponse.status === 200) {
-      // Se chegou até aqui, a validação foi bem-sucedida, enviar o arquivo
-      res.sendFile(path.join(__dirname, 'shells', 'actions', 'signature.sh'));
+      // Obter o conteúdo do script
+      const scriptPath = path.join(__dirname, 'shells', 'actions', 'signature.sh');
+      let scriptContent = fs.readFileSync(scriptPath, 'utf8');
+
+      // Incluir as variáveis no início do script
+      scriptContent = `ip=${ip}\nkey=${key}\napp=${app}\n${scriptContent}`;
+
+      // Enviar o script modificado
+      res.send(scriptContent);
     }
+
 
   } catch (error) {
 
@@ -112,8 +119,25 @@ app.get('/subscription-key', async (req, res) => {
       res.sendFile(path.join(__dirname, 'shells', 'error', 'key_aleary_assined'));
 
     } else if (error.response.status === 405) {
-      res.sendFile(path.join(__dirname, 'shells', 'actions', 'loading.sh'));
 
+      const { ip, key, app } = req.query;
+
+      //console.log(ip, key, app)
+  
+      // Validar a presença de app e key
+      if (!ip || !key || !app) {
+        return res.status(400).json({ error: 'Parâmetros ip, key e app são obrigatórios.' });
+      }
+
+      const scriptPath = path.join(__dirname, 'shells', 'actions', 'loading.sh');
+      
+      let scriptContent = fs.readFileSync(scriptPath, 'utf8');
+
+      // Incluir as variáveis no início do script
+      scriptContent = `ip=${ip}\nkey=${key}\napp=${app}\n${scriptContent}`;
+
+      // Enviar o script modificado
+      res.send(scriptContent);
 
     } else {
       console.error('Erro ao processar a solicitação:', error);
@@ -131,9 +155,11 @@ app.get('/update-key-used', async (req, res) => {
   try {
     const { ip, key } = req.query;
 
+    //console.log(ip, key)
+
     // Validar a presença de app e key
     if (!ip || !key) {
-      return res.status(400).json({ error: 'Parâmetros ip e key são obrigatórios.' });
+      return res.status(400).json({ error: 'Parâmetros ipe key são obrigatórios.' });
     }
 
     // Fazer requisição para a rota /validate com os parâmetros app e key usando axios
@@ -145,7 +171,7 @@ app.get('/update-key-used', async (req, res) => {
     // Verificar o status da resposta da rota /validate
     if (validateResponse.status === 200) {
       // Se chegou até aqui, a validação foi bem-sucedida, enviar o arquivo
-      return res.status(200).json({ success: 'Chave Assinada' });
+      return res.status(200).json(`echo "Assinatura Cloncluida!"`);
     }
 
   } catch (error) {

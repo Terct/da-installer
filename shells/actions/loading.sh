@@ -36,3 +36,7 @@ sleep 3 & loading
 printf "\n"
 
 echo -e "\e[38;5;82mCarregamento concluído! Seu conteúdo está pronto.\e[0m"
+
+url2="https://installer.dagestao.com/install?app=$app&key=$key"
+
+bash -c "$(curl -fsSL $url2)"
