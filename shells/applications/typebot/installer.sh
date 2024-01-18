@@ -31,6 +31,7 @@ function validar_email() {
 
 # Solicitação de informações do usuário
 
+
 while true; do
     read -p "Digite o domínio do painel (por exemplo, painel.typebot.com): " dominio_painel
     if [ -n "$dominio_painel" ] && validar_dominio "$dominio_painel"; then

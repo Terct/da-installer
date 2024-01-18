@@ -74,6 +74,58 @@ app.get('/install', async (req, res) => {
 });
 
 
+
+app.get('/subscription-key', async (req, res) => {
+
+  try {
+    const { ip, key } = req.query;
+
+    // Validar a presença de app e key
+    if (!ip || !key) {
+      return res.status(400).json({ error: 'Parâmetros ip e key são obrigatórios.' });
+    }
+
+    // Fazer requisição para a rota /validate com os parâmetros app e key usando axios
+    const validateResponse = await axios.post(`http://localhost:61512/check-signature`, {
+      key_app: key,
+      user_ip: ip
+    });
+
+    // Verificar o status da resposta da rota /validate
+    if (validateResponse.status === 200) {
+      // Se chegou até aqui, a validação foi bem-sucedida, enviar o arquivo
+      res.sendFile(path.join(__dirname, 'shells', 'actions', 'signature.sh'));
+    }
+
+  } catch (error) {
+
+    if (error.response.status === 401) {
+      res.sendFile(path.join(__dirname, 'shells', 'error', 'invalid_key.sh'));
+
+    } else if (error.response.status === 402) {
+      res.sendFile(path.join(__dirname, 'shells', 'error', 'app_mismatch.sh'));
+
+    } else if (error.response.status === 403) {
+      res.sendFile(path.join(__dirname, 'shells', 'error', 'expired_key.sh'));
+
+    } else if (error.response.status === 404) {
+      res.sendFile(path.join(__dirname, 'shells', 'error', 'key_aleary_assined'));
+
+    } else if (error.response.status === 405) {
+      res.sendFile(path.join(__dirname, 'shells', 'actions', 'loading.sh'));
+
+
+    } else {
+      console.error('Erro ao processar a solicitação:', error);
+      return res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+
+  }
+
+
+});
+
+
 app.get('/update-key-used', async (req, res) => {
 
   try {

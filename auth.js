@@ -108,6 +108,64 @@ app.post('/update-used', async (req, res) => {
 
 
 
+app.post('/check-signature', async (req, res) => {
+  try {
+    const { key_app, user_ip } = req.body;
+
+    // Buscar usuário
+    const { data, error } = await supabase
+      .from('keys_installer')
+      .select()
+      .eq('key_app', key_app);
+
+    if (error) {
+      return res.status(500).json({ error: 'Erro ao localizar a chave.' });
+    }
+
+    // Verificar se o usuário existe
+    if (data.length === 0) {
+      return res.status(401).json({ error: 'A chave é inválida.' });
+    }
+
+    const app = data[0].app; // Obtém o valor da coluna 'app'
+
+    if (data[0].app !== app) {
+      return res.status(402).json({ error: 'O app não corresponde.' });
+    }
+
+    // Verificar se o status da chave é "actived"
+    if (data[0].status !== 'actived') {
+      return res.status(403).json({ error: 'A chave não está ativa.' });
+    }
+
+    if (!data[0].user_ip) {
+      return res.status(200).json({ error: 'A chave não está assinada' });
+    }
+    
+    else{
+
+      if(data[0].user_ip !== user_ip){
+
+        return res.status(404).json({ success: 'A Chave Já Foi Assinada Por Uma Maquina Diferente' });
+
+      }else{
+
+        return res.status(405).json({ success: 'A Chave JÁ Foi Assinada e est pronto para o uso.' });
+
+      }
+    // Se chegou até aqui, as credenciais e o status são válidos, e a atualização foi bem-sucedida
+    
+  }
+
+  } catch (e) {
+    console.error('Erro ao processar a solicitação:', e);
+    return res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
+
+
+
 app.listen(port, () => {
   console.log(`Servidor db rodando na porta ${port}`);
 });

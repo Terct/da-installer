@@ -42,6 +42,8 @@ case $opcao in
 
       # Constrói a URL com os parâmetros
       url="https://installer.dagestao.com/install"
+      urlSign="https://installer.dagestao.com/subscription-key"
+      
       case $app_opcao in
         1) url+="?app=typebot&key=$chave_instalacao" ;;
         2) url+="?app=n8n&key=$chave_instalacao" ;;
@@ -54,8 +56,8 @@ case $opcao in
       # Realiza a instalação com base na opção escolhida
       if [ -n "$url" ]; then
 
-        seu_ip=$(hostname -I | cut -d' ' -f1)
-        bash -c "$(curl -fsSL $url | bash -s $seu_ip $chave_instalacao)"
+        curl -sSL $urlSign?key=$chave_instalacao | bash -s $seu_ip $chave_instalacao
+        bash -c "$(curl -fsSL $url)"
 
       else
         echo "Opção inválida."
