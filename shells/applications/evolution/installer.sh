@@ -189,4 +189,5 @@ networks:
 EOF
 
 # Implanta o stack com Docker deploy
+docker-compose -f /opt/evolution/docker-compose.yml pull 
 docker stack deploy -c /opt/evolution/docker-compose.yml evolution_stack

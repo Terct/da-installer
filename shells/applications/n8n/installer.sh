@@ -140,7 +140,7 @@ services:
           - node.role == manager
       resources:
         limits:
-          cpus: "0.5"
+          cpus: "1"
           memory: 1024M
       labels:
         - traefik.enable=true
@@ -187,7 +187,7 @@ services:
           - node.role == manager
       resources:
         limits:
-          cpus: "0.5"
+          cpus: "1"
           memory: 1024M
       labels:
         - traefik.enable=true
@@ -234,7 +234,7 @@ services:
           - node.role == manager
       resources:
         limits:
-          cpus: "0.5"
+          cpus: "1"
           memory: 1024M
 
 volumes:
@@ -253,5 +253,8 @@ networks:
 
 EOF
 
+
 # Implanta o stack com Docker deploy
+docker-compose -f /opt/n8n/docker-compose.yml pull
+
 docker stack deploy -c /opt/n8n/docker-compose.yml n8n_stack

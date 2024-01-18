@@ -151,7 +151,7 @@ services:
       - dagestao_network
     environment:
       - DATABASE_URL=postgresql://postgres:typebot@typebot-db:5432/typebot
-      - ENCRYPTION_SECRET=7/l2NKGhkMUHRV0dt/g8hD2YNopCrAeH
+      - ENCRYPTION_SECRET=do+UspMmB/rewbX2K/rskFmtgGSSZ8Ta
       - DEFAULT_WORKSPACE_PLAN=UNLIMITED
       - NEXTAUTH_URL=https://$dominio_painel
       - NEXT_PUBLIC_VIEWER_URL=https://$dominio_bot
@@ -199,7 +199,7 @@ services:
       - dagestao_network
     environment:
       - DATABASE_URL=postgresql://postgres:typebot@typebot-db:5432/typebot
-      - ENCRYPTION_SECRET=7/l2NKGhkMUHRV0dt/g8hD2YNopCrAeH
+      - ENCRYPTION_SECRET=do+UspMmB/rewbX2K/rskFmtgGSSZ8Ta
       - DEFAULT_WORKSPACE_PLAN=UNLIMITED
       - NEXTAUTH_URL=https://$dominio_painel
       - NEXT_PUBLIC_VIEWER_URL=https://$dominio_bot
@@ -279,4 +279,6 @@ networks:
 EOF
 
 # Implanta o stack com Docker deploy
+docker-compose -f /opt/typebot/docker-compose.yml pull
+
 docker stack deploy -c /opt/typebot/docker-compose.yml typebot_stack
