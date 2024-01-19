@@ -6,7 +6,7 @@ function validar_email() {
     local regex="^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$"
 
     if [[ $email =~ $regex ]]; then
-        echo "E-mail válido."
+        echo ""
         return 0
     else
         echo "E-mail inválido. Por favor, tente novamente."

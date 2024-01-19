@@ -1,5 +1,12 @@
 #!/bin/bash
 
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+
 # Função para validar a chave com qualquer quantidade de caracteres
 function validarChave() {
   local chave=$1
@@ -13,32 +20,38 @@ function validarChave() {
 }
 
 # Exibe as opções para o usuário
-echo "Escolha uma opção:"
+
+echo -e "${YELLOW}Escolha uma opção:"
 echo "1. Instalar"
-echo "2. Desinstalar"
+echo -e "2. Desinstalar${NC}"
+
 
 # Lê a opção escolhida pelo usuário
-read opcao
+read -p "opção: " opcao
+echo ""
 
 # Verifica a opção escolhida
 case $opcao in
 1) # Opção de instalação
-  echo "Digite sua chave de instalação:"
-  read chave_instalacao
+  echo -e "${YELLOW}Digite sua chave de instalação.${NC}"
+
+  read -p "chave: " chave_instalacao
+  echo ""
 
   # Valida a chave
   if validarChave "$chave_instalacao"; then
-    echo "Chave válida. Continuando com a instalação."
 
-    echo "Escolha uma aplicação para instalar:"
+    echo -e "${YELLOW}Escolha uma aplicação para instalar:"
     echo "1. Typebot"
     echo "2. n8n"
     echo "3. Evolution"
     echo "4. RabbitMQ"
     echo "5. Chatwoot"
+    echo -e "${NC}"
 
     # Lê a opção de aplicação escolhida
-    read app_opcao
+    read -p "opção: " app_opcao
+    echo ""
 
     # Constrói a URL com os parâmetros
 

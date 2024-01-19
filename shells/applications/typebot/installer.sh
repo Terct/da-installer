@@ -1,6 +1,7 @@
 #!/bin/bash
 RED='\033[0;31m'
 YELLOW='\033[1;33m'
+GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
@@ -43,28 +44,32 @@ function validar_email() {
 # Solicitação de informações do usuário
 
 while true; do
-  read -p "Digite o domínio do painel (por exemplo, painel.typebot.com): " dominio_painel
+  echo -e "${GREEN}Digite o domínio do painel (por exemplo, painel.typebot.com): ${NC}"
+  read -p "dominio: " dominio_painel
   if [ -n "$dominio_painel" ] && validar_dominio "$dominio_painel"; then
     break
   fi
 done
 
 while true; do
-  read -p "Digite o domínio do bot (por exemplo, bot.typebot.com): " dominio_bot
+  echo -e "${GREEN}Digite o domínio do bot (por exemplo, bot.typebot.com): ${NC}"
+  read -p "dominio: " dominio_bot
   if [ -n "$dominio_bot" ] && validar_dominio "$dominio_bot"; then
     break
   fi
 done
 
 while true; do
-  read -p "Digite o domínio do banco de dados (por exemplo, db.typebot.com): " dominio_db
+  echo -e "${GREEN}Digite o domínio do banco de dados (por exemplo, db.typebot.com): ${NC}"
+  read -p "dominio: " dominio_db
   if [ -n "$dominio_db" ] && validar_dominio "$dominio_db"; then
     break
   fi
 done
 
 while true; do
-  read -p "Digite o domínio para o painel do banco de dados (por exemplo, minio.typebot.com): " dominio_api_db
+  echo -e "${GREEN}Digite o domínio para o painel do banco de dados (por exemplo, minio.typebot.com): ${NC}"
+  read -p "dominio: " dominio_api_db
   if [ -n "$dominio_api_db" ] && validar_dominio "$dominio_api_db"; then
     break
   fi
@@ -72,7 +77,8 @@ done
 
 # Solicita o email do cliente e valida
 while true; do
-  read -p "Digite o seu e-mail: " client_email
+  echo -e "${GREEN}Digite o seu e-mail: ${NC}"
+  read -p "email: " client_email
   if [ -n "$client_email" ] && validar_email "$client_email"; then
     break
   fi
@@ -105,17 +111,23 @@ if [ "$(nslookup "$dominio_api_db" | awk '/^Address:/ && !/#/ {print $2}')" != "
   exit 1
 fi
 
-echo -e "${YELLOW}Escolha uma versão do Typebot. Você pode acessar https://hub.docker.com/r/baptistearno/typebot-builder/tags para ver as tags diponíveis.${NC}"
+echo -e "${YELLOW}Escolha uma versão do Typebot.${NC}"
+echo -e "${YELLOW}Clique no link abaixo  para ver as tags diponíveis.${NC}"
+echo -e "${BLUE}https://hub.docker.com/r/baptistearno/typebot-builder/tags${NC}"
+echo ""
+# Mais duas perguntas
+echo -e "${GREEN}Digite a versão do Typebot que deseja usar: ${NC}"
+read -p "tag: "  versao_typebot
+echo ""
 
-read -p "Digite a versão do Typebot que deseja usar: " versao_typebot
+echo -e "${YELLOW}Configure seu SMTP. Recomendação: Método Google${NC}"
+echo ""
 
-# Pergunta sobre a configuração do SMTP
+echo -e "${GREEN}Deseja usar SMTP do Google? Digite \"yes\" para usar o do Google ou digite \"no\" se deseja configurar o seu SMTP (Digite 'sim' ou 'nao')${NC}"
+read -p "usar google? (yes ou no): " configurar_smtp
+echo ""
 
-echo -e "${YELLOW}Configure seu SMTP. Recomendação: Métado Google${NC}"
-
-read -p "Deseja configurar o SMTP? Digite "N" para usar o do Google (Digite 'sim' ou 'nao'): " configurar_smtp
-
-if [ "$configurar_smtp" == "sim" ]; then
+if [ "$configurar_smtp" == "no" ]; then
   read -p "Digite o usuário SMTP: " usuario_smtp
   read -p "Digite o host SMTP: " host_smtp
   read -p "Digite a porta SMTP (Pressione Enter para padrão 25): " porta_smtp
@@ -127,6 +139,15 @@ else
 fi
 
 read -p "Digite a senha do smtp: " senha
+echo ""
+echo ""
+echo ""
+
+echo -e "${YELLOW}-------------------------------------"
+echo "|            Instalando...           |"
+echo "-------------------------------------"
+echo -e "${NC}"
+echo ""
 
 # Cria o diretório se não existir
 mkdir -p /opt/typebot/
@@ -283,3 +304,10 @@ EOF
 docker-compose -f /opt/typebot/docker-compose.yml pull
 
 docker stack deploy -c /opt/typebot/docker-compose.yml typebot_stack
+
+echo ""
+
+echo -e "${BLUE}-------------------------------------"
+echo "|       Instalação Concluida        |"
+echo "-------------------------------------"
+echo -e "${NC}
