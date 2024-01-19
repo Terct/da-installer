@@ -1,7 +1,7 @@
 #!/bin/bash
 RED='\033[0;31m'
 YELLOW='\033[1;33m'
-GREEN='\033[0;32m'
+GREEN='\033[1;32m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
@@ -310,4 +310,18 @@ echo ""
 echo -e "${BLUE}-------------------------------------"
 echo "|       Instalação Concluida        |"
 echo "-------------------------------------"
-echo -e "${NC}
+echo -e "${NC}"
+
+# Cria um arquivo de texto com as credenciais
+echo -e "Credenciais do Typebot Stack\n" > /opt/typebot/credenciais.txt
+echo -e "-------------------------------------" >> /opt/typebot/credenciais.txt
+echo -e "Domínio do Painel: $dominio_painel" >> /opt/typebot/credenciais.txt
+echo -e "Domínio do Bot: $dominio_bot" >> /opt/typebot/credenciais.txt
+echo -e "Domínio do Banco de Dados: $dominio_db" >> /opt/typebot/credenciais.txt
+echo -e "Domínio do Painel do Banco de Dados: $dominio_api_db" >> /opt/typebot/credenciais.txt
+
+echo -e "S3_ACCESS_KEY: OqCEOydCqDaVJ2eXw8TQ" >> /opt/typebot/credenciais.txt
+echo -e "S3_SECRET_KEY: ViK4TTnGK05LbY2kmbXLmwuW3uYeqtwvMEC9inFh" >> /opt/typebot/credenciais.txt
+echo -e "ENCRYPTION_SECRET: do+UspMmB/rewbX2K/rskFmtgGSSZ8Ta" >> /opt/typebot/credenciais.txt
+
+echo -e "\nCredenciais adicionadas ao arquivo /opt/typebot/credenciais.txt"
