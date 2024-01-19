@@ -1,0 +1,16 @@
+{
+    "output": {
+        "type": "object",
+        "properties": {
+            "Save": {
+                "type": "boolean"
+            },
+            "Item": {
+                "type": "string"
+            },
+            "Value": {
+                "type": "string"
+            }
+        }
+    }
+}

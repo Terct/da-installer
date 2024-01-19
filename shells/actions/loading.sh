@@ -19,15 +19,8 @@ loading() {
 clear
 
 
-echo "   
-    __
-___( o)>
-\ <_. )
-\`---'
- 
- "
-
-echo -e "\nCarregando..."
+echo "⌛"
+echo -e "\e[38;5;33mCarregando...\e[0m"
 
 # Simula um processo demorado
 sleep 3 & loading
