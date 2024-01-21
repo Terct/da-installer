@@ -210,7 +210,7 @@ app.get('/uninstall', async (req, res) => {
   
   else {
 
-    res.sendFile(path.join(__dirname, 'shells', 'applications', app, 'uninstalle.sh'));
+    res.sendFile(path.join(__dirname, 'shells', 'applications', app, 'uninstall.sh'));
 
   }
 });

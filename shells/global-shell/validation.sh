@@ -25,6 +25,7 @@ echo "1. Instalar"
 echo -e "2. Desinstalar${NC}"
 
 # Lê a opção escolhida pelo usuário
+echo ""
 read -p "opção: " opcao
 echo ""
 
@@ -91,7 +92,6 @@ case $opcao in
 
   read -p "opção: " app_opcao
   # Lê a opção de aplicação escolhida
-  read app_opcao
 
   # Realiza a desinstalação com base na opção escolhida
   case $app_opcao in
@@ -103,7 +103,14 @@ case $opcao in
   *) echo "Opção inválida." ;;
   esac
 
-  bash -c "$(curl -fsSL "https://installer.dagestao.com/uninstall?app=$app_opcao")"
+  url="https://installer.dagestao.com/uninstall"
+
+  clear
+  
+  echo ""
+  echo ""
+
+  bash -c "$(curl -fsSL "$url?app=$app_nome")"
 
   ;;
 

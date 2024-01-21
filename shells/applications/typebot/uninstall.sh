@@ -5,6 +5,15 @@ GREEN='\033[1;32m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+
+echo ""
+echo -e "${BLUE}-------------------------------------"
+echo "|           DESINSTALAÇÃO           |"
+echo "-------------------------------------"
+echo -e "${NC}"
+echo ""
+
+
 # Função para confirmar a desinstalação
 function confirmar_desinstalacao() {
   echo -e "${RED}ATENÇÃO: Esta ação irá desinstalar o aplicativo Typebot e todos os dados associados. Tem certeza de que deseja continuar?${NC}"
@@ -22,6 +31,11 @@ confirmar_desinstalacao
 
 # Remove o stack do Docker
 docker stack rm typebot_stack
+
+echo ""
+echo -e "${YELLOW}Deletando Volumes...${NC}"
+sleep 10
+
 
 # Remove os volumes
 docker volume rm typebot_stack_minio_data
