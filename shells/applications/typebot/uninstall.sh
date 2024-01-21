@@ -38,7 +38,7 @@ sleep 10
 
 
 # Remove os volumes
-docker volume rm typebot_stack_minio_data
+docker volume rm minio_data
 docker volume rm typebot_stack_db_data
 
 # Remove o diretório de instalação
