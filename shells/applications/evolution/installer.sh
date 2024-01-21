@@ -1,42 +1,70 @@
 #!/bin/bash
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+GREEN='\033[1;32m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+clear
+
+echo -e "${BLUE}-------------------------------------"
+echo "|          SETUP EVOLUTION           |"
+echo "-------------------------------------"
+echo -e "${NC}"
+echo ""
 
 # Função para validar o formato de domínio
 function validar_dominio() {
-    local dominio=$1
-    local regex="^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+  local dominio=$1
+  local regex="^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
 
-    if [[ $dominio =~ $regex ]]; then
-        echo "Domínio válido."
-        return 0
-    else
-        echo "Domínio inválido. Por favor, tente novamente."
-        return 1
-    fi
+  if [[ $dominio =~ $regex ]]; then
+    echo ""
+    return 0
+  else
+    echo -e "${RED}Domínio inválido. Por favor, tente novamente.${NC}"
+    return 1
+  fi
 }
 
 # Solicita o domínio e valida
 while true; do
-    read -p "Digite o seu subdomínio: " subdominio
-    if [ -n "$subdominio" ] && validar_dominio "$subdominio"; then
-        break
-    fi
+  echo -e "${GREEN}Digite o subdominio para sua Evolution-API (por exemplo, evolution.seudominio.com): ${NC}"
+  read -p "subdomínio: " subdominio
+  if [ -n "$subdominio" ] && validar_dominio "$subdominio"; then
+    break
+  fi
 done
 
 # Verifica se o subdomínio resolve para o IP local da máquina
-seu_ip=$(hostname -I | cut -d' ' -f1)  # Obtém o primeiro IP associado à máquina
+seu_ip=$(hostname -I | cut -d' ' -f1) # Obtém o primeiro IP associado à máquina
 if [ "$(nslookup "$subdominio" | awk '/^Address:/ && !/#/ {print $2}')" != "$seu_ip" ]; then
-    echo "Erro: O subdomínio não está apontado para o IP local da sua máquina."
-    exit 1
+  echo -e "${RED}Erro: O subdomínio não está apontado para o IP local da sua máquina.${NC}"
+  echo ""
+  exit 1
 else
-    echo "O subdomínio está apontado para o IP local da sua máquina."
+  echo ""
 fi
+
+
+
+
+echo -e "${YELLOW}-------------------------------------"
+echo "|            Instalando...           |"
+echo "-------------------------------------"
+echo -e "${NC}"
+echo ""
+
+
+
+api_key=$(openssl rand -hex 16)
+
 
 # Cria o diretório se não existir
 mkdir -p /opt/mongodb/
 
-
 # Cria o arquivo docker-compose.yml no diretório /opt/traefik
-cat <<EOF > /opt/mongodb/docker-compose.yml
+cat <<EOF >/opt/mongodb/docker-compose.yml
 
 version: "3.7"
 
@@ -82,25 +110,28 @@ networks:
 
 EOF
 
+
+
 # Implanta o stack com Docker deploy
+docker-compose -f /opt/mongodb/docker-compose.yml pull
 docker stack deploy -c /opt/mongodb/docker-compose.yml mongodb_stack
 
 # Cria o diretório se não existir
 mkdir -p /opt/evolution/
 
 # Cria o arquivo docker-compose.yml no diretório /opt/traefik
-cat <<EOF > /opt/evolution/docker-compose.yml
+cat <<EOF >/opt/evolution/docker-compose.yml
 version: "3.7"
 
 services:
-  evolution_astra:
+  evolution_dagestao:
     image: davidsongomes/evolution-api:v1.5.4
     command: ["node", "./dist/src/main.js"]
     networks:
       - dagestao_network
     volumes:
-    - evolution_astra_instances:/evolution/instances
-    - evolution_astra_store:/evolution/store
+    - evolution_dagestao_instances:/evolution/instances
+    - evolution_dagestao_store:/evolution/store
     environment:
       - SERVER_URL=https://${subdominio}
       - DOCKER_ENV=true
@@ -118,7 +149,7 @@ services:
       - CLEAN_STORE_CONTACTS=true
       - CLEAN_STORE_CHATS=true
       - AUTHENTICATION_TYPE=apikey
-      - AUTHENTICATION_API_KEY=0417bf43b0a8969bd6685bcb49d783df
+      - AUTHENTICATION_API_KEY=${api_key}
       - AUTHENTICATION_EXPOSE_IN_FETCH_INSTANCES=true
       - QRCODE_LIMIT=30
       - WEBHOOK_GLOBAL_ENABLED=false
@@ -165,21 +196,21 @@ services:
           memory: 2048M
       labels:
         - traefik.enable=true
-        - traefik.http.routers.evolution_astra.rule=Host(\`${subdominio}\`)
-        - traefik.http.routers.evolution_astra.entrypoints=websecure
-        - traefik.http.routers.evolution_astra.tls.certresolver=letsencryptresolver
-        - traefik.http.routers.evolution_astra.priority=1
-        - traefik.http.routers.evolution_astra.service=evolution_astra
-        - traefik.http.services.evolution_astra.loadbalancer.server.port=8080
-        - traefik.http.services.evolution_astra.loadbalancer.passHostHeader=true
+        - traefik.http.routers.evolution_dagestao.rule=Host(\`${subdominio}\`)
+        - traefik.http.routers.evolution_dagestao.entrypoints=websecure
+        - traefik.http.routers.evolution_dagestao.tls.certresolver=letsencryptresolver
+        - traefik.http.routers.evolution_dagestao.priority=1
+        - traefik.http.routers.evolution_dagestao.service=evolution_dagestao
+        - traefik.http.services.evolution_dagestao.loadbalancer.server.port=8080
+        - traefik.http.services.evolution_dagestao.loadbalancer.passHostHeader=true
 
 volumes:
-  evolution_astra_instances:
+  evolution_dagestao_instances:
     external: true
-    name: evolution_astra_instances
-  evolution_astra_store:
+    name: evolution_dagestao_instances
+  evolution_dagestao_store:
     external: true
-    name: evolution_astra_store
+    name: evolution_dagestao_store
 
 networks:
   dagestao_network:
@@ -189,5 +220,35 @@ networks:
 EOF
 
 # Implanta o stack com Docker deploy
-docker-compose -f /opt/evolution/docker-compose.yml pull 
+docker-compose -f /opt/evolution/docker-compose.yml pull
 docker stack deploy -c /opt/evolution/docker-compose.yml evolution_stack
+
+
+echo ""
+
+echo -e "${BLUE}-------------------------------------"
+echo "|       Instalação Concluida        |"
+echo "-------------------------------------"
+echo -e "${NC}"
+
+
+# Cria um arquivo de texto com as credenciais
+echo -e "Credenciais do Evolution Stack\n" > /opt/evolution/credenciais.txt
+echo -e "-------------------------------------" >> /opt/evolution/credenciais.txt
+echo -e "Subdomínio Evolution: $subdominio" >> /opt/evolution/credenciais.txt
+echo -e "MongoDB Root User: admin" >> /opt/evolution/credenciais.txt
+echo -e "MongoDB Root Password: Mfcd62!!Mfcd62!!" >> /opt/evolution/credenciais.txtdocker ps
+echo -e "API Key: $api_key" >> /opt/evolution/credenciais.txt
+echo -e "-------------------------------------" >> /opt/evolution/credenciais.txt
+
+
+echo -e "${RED}Credenciais adicionadas ao arquivo /opt/evolution/credenciais.txt${NC}"
+
+echo ""
+echo ""
+
+echo -e "${YELLOW}Suas Credenciais:${NC}"
+echo ""
+
+cat /opt/evolution/credenciais.txt
+echo ""

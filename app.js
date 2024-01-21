@@ -116,7 +116,7 @@ app.get('/subscription-key', async (req, res) => {
       res.sendFile(path.join(__dirname, 'shells', 'error', 'expired_key.sh'));
 
     } else if (error.response.status === 404) {
-      res.sendFile(path.join(__dirname, 'shells', 'error', 'key_aleary_assined'));
+      res.sendFile(path.join(__dirname, 'shells', 'error', 'key_aleary_assined.sh'));
 
     } else if (error.response.status === 405) {
 

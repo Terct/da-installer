@@ -1,16 +1,22 @@
 {
-    "output": {
-        "type": "object",
-        "properties": {
-            "Save": {
-                "type": "boolean"
-            },
-            "Item": {
-                "type": "string"
-            },
-            "Value": {
-                "type": "string"
-            }
+  "type": "object",
+  "properties": {
+    "values": {
+      "type": "object",
+      "properties": {
+        "Save": {
+          "type": "boolean"
+        },
+        "Item": {
+          "type": "string"
+        },
+        "Value": {
+          "type": "string"
+        },
+        "additional_kwargs": {
+          "type": "object"
         }
+      }
     }
+  }
 }

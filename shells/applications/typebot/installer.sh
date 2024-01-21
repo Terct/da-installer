@@ -324,4 +324,13 @@ echo -e "S3_ACCESS_KEY: OqCEOydCqDaVJ2eXw8TQ" >> /opt/typebot/credenciais.txt
 echo -e "S3_SECRET_KEY: ViK4TTnGK05LbY2kmbXLmwuW3uYeqtwvMEC9inFh" >> /opt/typebot/credenciais.txt
 echo -e "ENCRYPTION_SECRET: do+UspMmB/rewbX2K/rskFmtgGSSZ8Ta" >> /opt/typebot/credenciais.txt
 
-echo -e "\nCredenciais adicionadas ao arquivo /opt/typebot/credenciais.txt"
+echo -e "${RED}Credenciais adicionadas ao arquivo /opt/typebot/credenciais.txt${NC}"
+
+echo ""
+echo ""
+
+echo -e "${YELLOW}Suas Credenciais:${NC}"
+echo ""
+
+cat /opt/typebot/credenciais.txt
+echo ""
