@@ -6,7 +6,6 @@ GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-
 # Função para validar a chave com qualquer quantidade de caracteres
 function validarChave() {
   local chave=$1
@@ -24,7 +23,6 @@ function validarChave() {
 echo -e "${YELLOW}Escolha uma opção:"
 echo "1. Instalar"
 echo -e "2. Desinstalar${NC}"
-
 
 # Lê a opção escolhida pelo usuário
 read -p "opção: " opcao
@@ -48,6 +46,7 @@ case $opcao in
     echo "4. RabbitMQ"
     echo "5. Chatwoot"
     echo -e "${NC}"
+    echo ""
 
     # Lê a opção de aplicação escolhida
     read -p "opção: " app_opcao
@@ -82,25 +81,30 @@ case $opcao in
   ;;
 
 2) # Opção de desinstalação
-  echo "Escolha uma aplicação para desinstalar:"
+  echo -e "${YELLOW}Escolha uma aplicação para desinstalar:"
   echo "1. Typebot"
   echo "2. n8n"
   echo "3. Evolution"
   echo "4. RabbitMQ"
   echo "5. Chatwoot"
+  echo -e "${NC}"
 
+  read -p "opção: " app_opcao
   # Lê a opção de aplicação escolhida
   read app_opcao
 
   # Realiza a desinstalação com base na opção escolhida
   case $app_opcao in
-  1) sudo apt remove typebot -y ;;
-  2) sudo apt remove n8n -y ;;
-  3) sudo apt remove evolution -y ;;
-  4) sudo apt remove rabbitmq-server -y ;; # Desinstalação do RabbitMQ
-  5) sudo apt remove chatwoot -y ;;
+  1) app_nome="typebot" ;;
+  2) app_nome="n8n" ;;
+  3) app_nome="evolution" ;;
+  4) app_nome="rabbitmq" ;;
+  5) app_nome="chatwoot" ;;
   *) echo "Opção inválida." ;;
   esac
+
+  bash -c "$(curl -fsSL "https://installer.dagestao.com/uninstall?app=$app_opcao")"
+
   ;;
 
 *) echo "Opção inválida." ;;

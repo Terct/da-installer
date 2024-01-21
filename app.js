@@ -123,14 +123,14 @@ app.get('/subscription-key', async (req, res) => {
       const { ip, key, app } = req.query;
 
       //console.log(ip, key, app)
-  
+
       // Validar a presença de app e key
       if (!ip || !key || !app) {
         return res.status(400).json({ error: 'Parâmetros ip, key e app são obrigatórios.' });
       }
 
       const scriptPath = path.join(__dirname, 'shells', 'actions', 'loading.sh');
-      
+
       let scriptContent = fs.readFileSync(scriptPath, 'utf8');
 
       // Incluir as variáveis no início do script
@@ -194,6 +194,28 @@ app.get('/update-key-used', async (req, res) => {
 
 
 });
+
+
+
+app.get('/uninstall', async (req, res) => {
+
+  const { app } = req.query;
+
+  // Validar a presença de app e key
+  if (!app) {
+    
+    return res.status(400).json({ error: 'Parâmetros app e key são obrigatórios.' });
+
+  } 
+  
+  else {
+
+    res.sendFile(path.join(__dirname, 'shells', 'applications', app, 'uninstalle.sh'));
+
+  }
+});
+
+
 
 
 app.listen(port, () => {
